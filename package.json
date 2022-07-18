@@ -1,0 +1,31 @@
+{
+  "name": "web-rabc-permissions-sdk",
+  "version": "1.0.0",
+  "description": " 后台管理系统RABC通用权限控制规范与规范代码实施js-SDK，包含 节点/按钮/路由 等控制 ，支持hidden,disabled，删除，或则自定义function处理。  通过配置实现RABC的权限控制",
+  "main": "./src/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/liyuec/web-RABC-Permissions-sdk.git"
+  },
+  "keywords": [
+    "permission",
+    "RABC",
+    "web",
+    "javascript",
+    "权限控制",
+    "html节点控制"
+  ],
+  "author": "liyuec",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/liyuec/web-RABC-Permissions-sdk/issues"
+  },
+  "homepage": "https://github.com/liyuec/web-RABC-Permissions-sdk#readme",
+  "dependencies": {
+    "webpack": "^5.73.0",
+    "webpack-cli": "^4.10.0"
+  }
+}
