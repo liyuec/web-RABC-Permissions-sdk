@@ -9,9 +9,9 @@ const webRabcPermissionSdkOptions = {
     },
     //不做任何处理的节点
     havePermiss:[],
-    //需要diplay:none或则  删除的节点
+    //需要diplay:none 或则 删除 或则 执行用户callBack 的节点
     noPermiss:[],
-    //特殊的节点
+    //特殊的节点   需要diplay:none 或则 删除 或则 执行用户callBack 的节点
     specialPermiss:[]
 }
 

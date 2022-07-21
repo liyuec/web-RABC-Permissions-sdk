@@ -11,6 +11,8 @@ function setSpecialPermission(specialPermiss){
     this.specialPermiss = [...noPermiss]
 }
 
+
+
 function destroy(){
 
 }
@@ -29,4 +31,8 @@ function setData(){
 
 function stop(){
     
+}
+
+export {
+    setHavePermission,setNoPermission,setSpecialPermission
 }
