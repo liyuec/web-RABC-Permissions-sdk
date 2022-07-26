@@ -1,10 +1,6 @@
 {
-    "presets": [
-      ["env",{
-        "targets":{
-          "browsers": [ "ie >= 10", "chrome >= 90" ]
-        }
-      }]],
+    "presets": ["@babel/preset-env"],
     "plugins": [
+      
     ]
   }
