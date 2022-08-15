@@ -9,44 +9,75 @@ import {setHavePermission,setNoPermission,setSpecialPermission,
     diffPermissNode
 } from './core/webCore';
 
+
+import {conWar,MUST_NO_RUNNING} from './config/message';
+
 class webRabcPermissionSdk{
     #permissionCache;
     //最初的记录 new 的时候传递进来的
     config;
-    #permissionDiffResult = [];
+    #permissionDiffResult = {
+        havePermiss:{},
+        noPermiss:{}
+    };
     //如过有timer， 记得timer的ID
-    #timer = 0;
+    timer = 0;
     /*  
         降级方案  requestAnimationFrame   requestIdleCallback   setTimeout
         默认    setTimeout 
     */
-    #plan = PLAN_ENUM.SET_TIMEOUT;
-    #version = '1.0.0'
+    //#plan = PLAN_ENUM.SET_TIMEOUT;
+    #plan = PLAN_ENUM.REQUEST_IDLE_CALLBACK;
+    #planCheck = null;
+    #version = '1.0.0';
+    #running = false;
     constructor(options = null){
         if(options){
             this.config = options;
+            //************  这里应该进行深拷贝 ********** */
+            this.#permissionCache = options;
         }
-        this.#plan = checkPlan();
-        this.#startSDK();
+        this.#planCheck = checkPlan();
     }
-
-    setPermissData(data){
-        if(data.havePermiss){
-            setHavePermission.call(this,data.havePermiss);
+    setPlan(planType){
+        if(this.#running){
+            conWar(MUST_NO_RUNNING.MUST_NO_RUNNING)
+            return this;
         }
-        if(data.noPermiss){
-            setNoPermission.call(this,data.noPermiss);
-        }
-        if(data.specialPermiss){
-            setSpecialPermission.call(this,data.specialPermiss);
-        }
-
+        this.#plan = planType;
         return this;
     }
-
+    setHavePermissData(data){
+        if(this.#running){
+            conWar(MUST_NO_RUNNING.MUST_NO_RUNNING)
+            return this;
+        }
+        setHavePermission.call(this,data);
+        return this;
+    }
+    setNoPermissData(data){
+        if(this.#running){
+            conWar(MUST_NO_RUNNING.MUST_NO_RUNNING)
+            return this;
+        }
+        setNoPermission.call(this,data);
+        return this;
+    }
+    setSpecialPermissData(data){
+        if(this.#running){
+            conWar(MUST_NO_RUNNING.MUST_NO_RUNNING)
+            return this;
+        }
+        setSpecialPermission.call(this,data);
+        return this;
+    }
     #startSDK(){
-        diffPermissNode.call(this);
-        switch(this.#plan){
+        //选择控制方式
+        let userChoosePlan = this.config.plan
+        if(!userChoosePlan && !this.#planCheck[userChoosePlan]){
+            this.#plan = this.#planCheck[userChoosePlan];
+        }
+        switch(this.#plan){                       
             case PLAN_ENUM.REQUEST_ANIMATION_FRAME:
                 _requestAnimationFrame.call(this);
             break;
@@ -54,18 +85,29 @@ class webRabcPermissionSdk{
                 _requestIdleCallback.call(this)
             break;
             case PLAN_ENUM.SET_TIMEOUT:     
-                _setTimeout.call(this)
+                this.timer = _setTimeout.call(this)
+            break;
+            default:
+                this.timer = _setTimeout.call(this)
             break;
         }
     }
-
+    start(){
+        this.#running = true;
+        diffPermissNode(this.permissionCache);
+        this.#startSDK();
+        return this;
+    }
 
     reload(){
+        this.#running = true;
         this.#startSDK();
         return this;
     }
 
     stop(){
+        this.#running = false;
+        clearTimeout(this.timer);
         return this;
     }
 
@@ -85,6 +127,7 @@ class webRabcPermissionSdk{
         let result = {
             version:this.#version,
             plan:this.#plan,
+            checkPlan:this.#planCheck,
             config:this.config,
             diffResult:this.permissionDiffResult,
             cachePermission:this.#permissionCache
@@ -127,5 +170,5 @@ const getNewPermissionSimpleDTP = function(){
 
 
 export {
-    webRabcPermisson,webRabcPermissionSdkOptions,getNewPermissionDTO,getNewPermissionSimpleDTP
+    webRabcPermisson,webRabcPermissionSdkOptions,getNewPermissionDTO,getNewPermissionSimpleDTP,PLAN_ENUM
 }

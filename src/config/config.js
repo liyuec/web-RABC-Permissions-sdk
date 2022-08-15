@@ -9,6 +9,8 @@ const webRabcPermissionSdkOptions = {
         //微前端(***************预留***************)
         microLibraryName:undefined
     },
+    //方案  requestAnimationFrame   requestIdleCallback   setTimeout
+    plan:'',
     //不做任何处理的节点
     havePermiss:[],
     //需要diplay:none 或则 删除 或则 执行用户callBack 的节点
@@ -30,7 +32,7 @@ const permissionDTO = {
     //控制节点的ID或则ClassName
     eleIdOrClass:'',
     //下级内容
-    childs:[],
+    child:[],
     //hidden | removeNode | callback
     resultType:''
 }

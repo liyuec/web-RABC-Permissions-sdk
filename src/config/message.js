@@ -1,7 +1,8 @@
 const MESSAGE = {
     'HAVE_PERMISS_MUST_ARRAY':'have permission 必须为一个数组',
     'NO_PERMISS_MUST_ARRAY':'no permission 必须为一个数组',
-    'SPECAIL_PERMISS_MUST_ARRAY':'specail permission 必须为一个数组'
+    'SPECAIL_PERMISS_MUST_ARRAY':'specail permission 必须为一个数组',
+    'MUST_NO_RUNNING':'设置权限数据 或 权限执行方案 需要stop 后 再设置，避免多次diff对比，请记得reload'
 }
 
 

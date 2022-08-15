@@ -5,7 +5,9 @@
   "main": "dist/index.umd.min.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "webpack --config ./build/webpack.base.config"
+    "build": "webpack --config ./build/webpack.base.config",
+    "async": "npm run build && yalc push",
+    "watch": "nodemon --ignore dist/ --ignore node_modules/ --watch src/ -C -e ts,tsx,scss --debug -x 'tnpm run async'"
   },
   "repository": {
     "type": "git",
