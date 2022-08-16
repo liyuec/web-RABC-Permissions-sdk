@@ -23,13 +23,26 @@ function diffPermissNode(permissionCache){
     },
     //去重后的结果array
     _havePermiss = {},_noPermiss = {}
+
+    let getGroup = (function(){
+        return function(groups,cb){
+            return groups.reduce((obj,item)=>{
+				if(cb ? cb.call(item,obj) : true){
+					obj[item.routerPath] ? obj[item.routerPath].push(item) : obj[item.routerPath] = [item]
+					return obj;
+				}
+				return obj;
+				
+            },{})
+        }
+    })()
     
     //无序数组  去重 + 组合对象
     if(havePermiss.length > 0 && noPermiss.length > 0){
         havePermiss.forEach(hItem => {
             let isSame = false;
             for(let i = 0;i<noPermiss.length;i++){
-                if(hItem.routerName === noPermiss[i].routerName && hItem.eleIdOrClass === noPermiss[i].eleIdOrClass){
+                if(hItem.routerPath === noPermiss[i].routerPath && hItem.eleIdOrClass === noPermiss[i].eleIdOrClass){
                     isSame = true;
                     noPermiss[i].isSame = true;
                     break;
@@ -40,27 +53,36 @@ function diffPermissNode(permissionCache){
                 }
             }
             if(!isSame){
-                _havePermiss[hItem.routerName] = _havePermiss[hItem.routerName] ? _havePermiss[hItem.routerName].push(hItem) : [hItem]
+                //_havePermiss[hItem.routerPath] = _havePermiss[hItem.routerPath] ? _havePermiss[hItem.routerPath].push(hItem) : [hItem]
+                _havePermiss[hItem.routerPath] ? _havePermiss[hItem.routerPath].push(hItem) : _havePermiss[hItem.routerPath]  = [hItem]
             }
         })
-        _noPermiss = noPermiss.reduce((obj,item)=>{
+      /*   _noPermiss = noPermiss.reduce((obj,item)=>{
             if(!item.isSame){
-                obj[item.routerName] = obj[item.routerName] ? obj[item.routerName].push(item) : [item]
+                obj[item.routerPath] = obj[item.routerPath] ? obj[item.routerPath].push(item) : [item]
             }
             return obj;
-        },{})
+        },{}) */
+        _noPermiss = getGroup(noPermiss,function(obj){
+            if(this.isSame){
+                return false;
+            }
+            return true;
+        })
     }else{
         if(havePermiss.length > 0){
-            _havePermiss = havePermiss.reduce((obj,item)=>{
-                obj[item.routerName] = obj[item.routerName] ? obj[item.routerName].push(item) : [item]
+         /*    _havePermiss = havePermiss.reduce((obj,item)=>{
+                obj[item.routerPath] = obj[item.routerPath] ? obj[item.routerPath].push(item) : [item]
                 return obj;
-            },{})
+            },{}) */
+            _havePermiss = getGroup(havePermiss)
         }
         if(noPermiss.length > 0){
-            _noPermiss = noPermiss.reduce((obj,item)=>{
-                obj[item.routerName] = obj[item.routerName] ? obj[item.routerName].push(item) : [item]
+            _noPermiss = getGroup(noPermiss)
+          /*   _noPermiss = noPermiss.reduce((obj,item)=>{
+                obj[item.routerPath] = obj[item.routerPath] ? obj[item.routerPath].push(item) : [item]
                 return obj;
-            },{})
+            },{}) */
         }   
         
     }
@@ -73,7 +95,51 @@ function diffPermissNode(permissionCache){
     return _diffResult;
 }
 
-function getWhoRouter(){
+//根据当前路由path得到 当前需要处理的权限节点数组
+function getWhoRouter(permissionDiffResult){
+    let haveElems = [],noPerElems = [],
+    {havePermiss,noPermiss} = permissionDiffResult,
+    _href = window.location.href;
+
+    Object.keys(noPermiss).forEach(routerPath=>{
+        if(_href.indexOf(routerPath) > -1){
+            noPerElems.push(...noPermiss[routerPath])
+        }
+    })
+
+    Object.keys(havePermiss).forEach(routerPath=>{
+        if(_href.indexOf(routerPath) > -1){
+            haveElems.push(...havePermiss[routerPath])
+        }
+    })
+
+    return {
+        haveElems:haveElems,
+        noPerElems:noPerElems
+    }
+}
+
+function doNoPermissDOM(noPermiss){
+    noPermiss.forEach(ele =>{
+        if(ele.eleIdOrClass.startsWith('#')){
+            let elem = document.querySelector(ele.eleIdOrClass);
+            if(elem){
+                if(elem.style.display != 'none'){
+                    elem.style.display = 'none'
+                }
+            }
+        }else if(ele.eleIdOrClass.startsWith('.')){
+            let elemList =  document.querySelectorAll(ele.eleIdOrClass);
+            elemList.forEach(elem =>{
+                if(elem.style.display != 'none'){
+                    elem.style.display = 'none'
+                }
+            })
+        }
+    })
+}
+
+function doHavePermissDOM(havePermiss){
 
 }
 
@@ -85,10 +151,14 @@ function _requestIdleCallback(){
 
 }
 
-function _setTimeout(){
-    setTimeout(() => {
-        
-    }, 500);
+function _setTimeout(permissionDiffResult,millisec){
+    let _this = this,
+    {haveElems,noPerElems} = getWhoRouter(permissionDiffResult)
+    _this.timer = setTimeout(() => {
+        doNoPermissDOM(noPerElems);
+        doHavePermissDOM(haveElems);
+        _setTimeout.call(_this,permissionDiffResult,millisec)
+    }, millisec);
 }   
 
 

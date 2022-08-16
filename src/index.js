@@ -22,6 +22,8 @@ class webRabcPermissionSdk{
     };
     //如过有timer， 记得timer的ID
     timer = 0;
+    //setTimeout间隔
+    #millisec = 500;
     /*  
         降级方案  requestAnimationFrame   requestIdleCallback   setTimeout
         默认    setTimeout 
@@ -71,12 +73,18 @@ class webRabcPermissionSdk{
         setSpecialPermission.call(this,data);
         return this;
     }
-    #startSDK(){
+    #startSDK(args){
         //选择控制方式
-        let userChoosePlan = this.config.plan
+        let userChoosePlan = this.config.plan,
+        millisec = this.#millisec
+
         if(!userChoosePlan && !this.#planCheck[userChoosePlan]){
             this.#plan = this.#planCheck[userChoosePlan];
         }
+        
+        millisec = (args && args.millisec) || millisec
+
+
         switch(this.#plan){                       
             case PLAN_ENUM.REQUEST_ANIMATION_FRAME:
                 _requestAnimationFrame.call(this);
@@ -85,17 +93,17 @@ class webRabcPermissionSdk{
                 _requestIdleCallback.call(this)
             break;
             case PLAN_ENUM.SET_TIMEOUT:     
-                this.timer = _setTimeout.call(this)
+                this.timer = _setTimeout.call(this,this.#permissionDiffResult,millisec)
             break;
             default:
-                this.timer = _setTimeout.call(this)
+                this.timer = _setTimeout.call(this,this.#permissionDiffResult,millisec)
             break;
         }
     }
-    start(){
+    start(args){
         this.#running = true;
-        diffPermissNode(this.permissionCache);
-        this.#startSDK();
+        this.#permissionDiffResult = diffPermissNode(this.permissionCache);
+        this.#startSDK(args);
         return this;
     }
 
@@ -113,10 +121,6 @@ class webRabcPermissionSdk{
 
     clear(){
 
-    }
-
-    set permissionCache(cache){
-        this.#permissionCache = cache;
     }
 
     get permissionCache(){

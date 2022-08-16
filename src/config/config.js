@@ -1,11 +1,13 @@
 const webRabcPermissionSdkOptions = {
+    //线上debug 返回数据
+    debugStr:'',
     permission:{
         //  permission 得到的方法，传入一个function
         Func:undefined,
         isRemote:false,
         Refresh:0,
         //默认无框架(***************预留***************)
-        libraryName:'',
+        libraryName:undefined,
         //微前端(***************预留***************)
         microLibraryName:undefined
     },
@@ -28,7 +30,7 @@ const PLAN_ENUM = {
 
 const permissionDTO = {
     //当前路由名称
-    routerName:'',
+    routerPath:'',
     //控制节点的ID或则ClassName
     eleIdOrClass:'',
     //下级内容
@@ -39,11 +41,11 @@ const permissionDTO = {
 
 
 const permissionSimpleDTO = {
-    //符合当前routerName均执行    *表示所有情况下均执行
-    routerName:'',
+    //符合当前routerPath均执行    *表示所有情况下均执行
+    routerPath:'',
     //控制节点的ID或则ClassName
     eleIdOrClass:'',
-    //hidden | removeNode | callback
+    //hidden | removeNode | callback | 
     resultType:'',
     //节点描述，方便DEBUG
     describe:'',
