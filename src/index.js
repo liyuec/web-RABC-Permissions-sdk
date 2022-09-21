@@ -10,7 +10,7 @@ import {setHavePermission,setNoPermission,setSpecialPermission,
 } from './core/webCore';
 
 
-import {conWar,MUST_NO_RUNNING} from './config/message';
+import {conWar,MESSAGE} from './config/message';
 
 class webRabcPermissionSdk{
     #permissionCache;
@@ -43,7 +43,7 @@ class webRabcPermissionSdk{
     }
     setPlan(planType){
         if(this.#running){
-            conWar(MUST_NO_RUNNING.MUST_NO_RUNNING)
+            conWar(MESSAGE.MUST_NO_RUNNING)
             return this;
         }
         this.#plan = planType;
@@ -51,7 +51,7 @@ class webRabcPermissionSdk{
     }
     setHavePermissData(data){
         if(this.#running){
-            conWar(MUST_NO_RUNNING.MUST_NO_RUNNING)
+            conWar(MESSAGE.MUST_NO_RUNNING)
             return this;
         }
         setHavePermission.call(this,data);
@@ -59,7 +59,7 @@ class webRabcPermissionSdk{
     }
     setNoPermissData(data){
         if(this.#running){
-            conWar(MUST_NO_RUNNING.MUST_NO_RUNNING)
+            conWar(MESSAGE.MUST_NO_RUNNING)
             return this;
         }
         setNoPermission.call(this,data);
@@ -67,7 +67,7 @@ class webRabcPermissionSdk{
     }
     setSpecialPermissData(data){
         if(this.#running){
-            conWar(MUST_NO_RUNNING.MUST_NO_RUNNING)
+            conWar(MESSAGE.MUST_NO_RUNNING)
             return this;
         }
         setSpecialPermission.call(this,data);
@@ -76,10 +76,10 @@ class webRabcPermissionSdk{
     #startSDK(args){
         //选择控制方式
         let userChoosePlan = this.config.plan,
-        millisec = this.#millisec
+        millisec = this.#millisec;
 
-        if(!userChoosePlan && !this.#planCheck[userChoosePlan]){
-            this.#plan = this.#planCheck[userChoosePlan];
+        if(!!userChoosePlan && this.#planCheck[userChoosePlan]){
+            this.#plan = userChoosePlan;
         }
         
         millisec = (args && args.millisec) || millisec
@@ -102,7 +102,7 @@ class webRabcPermissionSdk{
     }
     start(args){
         this.#running = true;
-        this.#permissionDiffResult = diffPermissNode(this.permissionCache);
+        this.#permissionDiffResult = diffPermissNode(this.#permissionCache,this.config);
         this.#startSDK(args);
         return this;
     }
@@ -133,7 +133,7 @@ class webRabcPermissionSdk{
             plan:this.#plan,
             checkPlan:this.#planCheck,
             config:this.config,
-            diffResult:this.permissionDiffResult,
+            diffResult:this.#permissionDiffResult,
             cachePermission:this.#permissionCache
         }
         if(stringify){
@@ -151,7 +151,6 @@ const webRabcPermisson = (function(){
     let _instance,
     _defaultOptions = webRabcPermissionSdkOptions;
     return function(options){
-        debugger;
         if(!_instance){
             _defaultOptions = Object.assign(_defaultOptions,options);
             _instance = new webRabcPermissionSdk(_defaultOptions)

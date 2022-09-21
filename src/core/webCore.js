@@ -14,8 +14,8 @@ function setSpecialPermission(specialPermiss){
 }
 
 //have permisson 和 No permission 的会冲突，diff掉 no里的permisson
-function diffPermissNode(permissionCache){
-    _checkPermissionDataType(this.config)
+function diffPermissNode(permissionCache,config){
+    _checkPermissionDataType(config)
     let {havePermiss,noPermiss} = permissionCache,
     _diffResult ={
         havePermiss:{},
@@ -140,7 +140,23 @@ function doNoPermissDOM(noPermiss){
 }
 
 function doHavePermissDOM(havePermiss){
-
+    havePermiss.forEach(ele => {
+        if(ele.eleIdOrClass.startsWith('#')){
+            let elem = document.querySelector(ele.eleIdOrClass);
+            if(elem){
+                if(elem.style.display == 'none'){
+                    elem.style.display = ''
+                }
+            }
+        }else if(ele.eleIdOrClass.startsWith('.')){
+            let elemList =  document.querySelectorAll(ele.eleIdOrClass);
+            elemList.forEach(elem =>{
+                if(elem.style.display == 'none'){
+                    elem.style.display = ''
+                }
+            })
+        }
+    })
 }
 
 function _requestAnimationFrame(){
@@ -178,7 +194,7 @@ function checkPlan(){
     checkResult[PLAN_ENUM.REQUEST_ANIMATION_FRAME] = fn(PLAN_ENUM.REQUEST_ANIMATION_FRAME)
     checkResult[PLAN_ENUM.REQUEST_IDLE_CALLBACK] = fn(PLAN_ENUM.REQUEST_IDLE_CALLBACK)
 
-    return checkResults;
+    return checkResult;
 }
 
 /*

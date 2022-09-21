@@ -23,8 +23,7 @@ module.exports =  {
             /* Advanced output.library configuration (click to show) */
         }
     },
-    
-    //devtool:'source-map',
+    /* devtool:'source-map', */
     //externals:[]
     module:{
         rules:[
