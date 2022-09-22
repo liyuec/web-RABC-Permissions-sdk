@@ -144,8 +144,12 @@ function doHavePermissDOM(havePermiss){
         if(ele.eleIdOrClass.startsWith('#')){
             let elem = document.querySelector(ele.eleIdOrClass);
             if(elem){
-                if(elem.style.display == 'none'){
-                    elem.style.display = ''
+                if(!!ele.showElemType){
+                    elem.style.setProperty('display',ele.showElemType,'important');
+                }else{
+                    if(elem.style.display == 'none'){
+                        elem.style.display = ''
+                    }
                 }
             }
         }else if(ele.eleIdOrClass.startsWith('.')){

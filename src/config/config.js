@@ -47,6 +47,8 @@ const permissionSimpleDTO = {
     eleIdOrClass:'',
     //hidden | removeNode | callback | 
     resultType:'',
+    //inline | inline-block | block | flex 等CSS节点
+    showElemType:'',
     //节点描述，方便DEBUG
     describe:'',
     //节点callback
