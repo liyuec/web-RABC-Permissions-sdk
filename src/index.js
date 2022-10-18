@@ -4,7 +4,7 @@ import {webRabcPermissionSdkOptions,permissionDTO,permissionSimpleDTO,
 from './config/config';
 
 import {setHavePermission,setNoPermission,setSpecialPermission,
-    _requestAnimationFrame,_requestIdleCallback,_setTimeout,
+    _requestAnimationFrame,_requestIdleCallback,_setTimeout,_MutationObserver,
     checkPlan,
     diffPermissNode
 } from './core/webCore';
@@ -22,14 +22,30 @@ class webRabcPermissionSdk{
     };
     //如过有timer， 记得timer的ID
     timer = 0;
+    #args = undefined;
     //setTimeout间隔
     #millisec = 500;
+    //MutationObserver
+    #obServerConfig = {
+        config:{
+            attributes:true,
+            childList:true,
+            subtree:true,
+            characterData:false
+        },
+        func:function(args,mutationList,observer){
+            _MutationObserver.call(this,args)
+        }
+    };
+    //必须是ID
+    #obElem = 'app'
+    #obServer = undefined;
     /*  
         降级方案  requestAnimationFrame   requestIdleCallback   setTimeout
         默认    setTimeout 
     */
     //#plan = PLAN_ENUM.SET_TIMEOUT;
-    #plan = PLAN_ENUM.REQUEST_IDLE_CALLBACK;
+    #plan = PLAN_ENUM.SET_TIMEOUT;
     #planCheck = null;
     #version = '1.0.0';
     #running = false;
@@ -74,9 +90,13 @@ class webRabcPermissionSdk{
         return this;
     }
     #startSDK(args){
+        //保存最开始的参数
+        this.#args = args;
+
         //选择控制方式
         let userChoosePlan = this.config.plan,
-        millisec = this.#millisec;
+        millisec = this.#millisec,
+        obElem = this.#obElem;
 
         if(!!userChoosePlan && this.#planCheck[userChoosePlan]){
             this.#plan = userChoosePlan;
@@ -86,11 +106,20 @@ class webRabcPermissionSdk{
 
 
         switch(this.#plan){                       
-            case PLAN_ENUM.REQUEST_ANIMATION_FRAME:
+          /*   case PLAN_ENUM.REQUEST_ANIMATION_FRAME:
                 _requestAnimationFrame.call(this);
             break;
             case PLAN_ENUM.REQUEST_IDLE_CALLBACK:
                 _requestIdleCallback.call(this)
+            break; */
+            case PLAN_ENUM.OB_SERVER:
+                if(this.#obServer){
+                    this.#obServer = new MutationObserver(this.obServerConfig.func.bind(this,
+                        {
+                            millisec:millisec
+                        }))
+                }
+                this.#obServer.obServer(document.getElementById(obElem),this.obServerConfig.config);
             break;
             case PLAN_ENUM.SET_TIMEOUT:     
                 this.timer = _setTimeout.call(this,this.#permissionDiffResult,millisec)
@@ -106,16 +135,24 @@ class webRabcPermissionSdk{
         this.#startSDK(args);
         return this;
     }
-
-    reload(){
+    //可能传新的参数 会覆盖之前的参数
+    reload(args = undefined){
         this.#running = true;
-        this.#startSDK();
+        this.start(args ? args : this.#args);
         return this;
     }
 
     stop(){
         this.#running = false;
-        clearTimeout(this.timer);
+        switch(this.#plan){
+            case PLAN_ENUM.SET_TIMEOUT:     
+                clearTimeout(this.timer);
+            break;
+            case PLAN_ENUM.OB_SERVER:
+                this.#obServer.disconnect();
+            break;
+        }
+      
         return this;
     }
 
@@ -148,7 +185,7 @@ class webRabcPermissionSdk{
 
 //sdk 入口  单例
 const webRabcPermisson = (function(){
-    let _instance,
+    let _instance = null,
     _defaultOptions = webRabcPermissionSdkOptions;
     return function(options){
         if(!_instance){

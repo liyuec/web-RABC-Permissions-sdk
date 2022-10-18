@@ -171,6 +171,20 @@ function _requestIdleCallback(){
 
 }
 
+
+const _MutationObserver = MutationObserverFunc()
+
+function MutationObserverFunc(){
+    let millisec = 0;
+    return function(_millisec){
+        millisec = _millisec;
+        doNoPermissDOM(noPerElems);
+        doHavePermissDOM(haveElems);
+    }
+}
+
+
+
 function _setTimeout(permissionDiffResult,millisec){
     let _this = this,
     {haveElems,noPerElems} = getWhoRouter(permissionDiffResult)
@@ -191,12 +205,12 @@ function checkPlan(){
     //默认 setTimout
     let checkResult = {
         [PLAN_ENUM.SET_TIMEOUT]:true,
-        [PLAN_ENUM.REQUEST_ANIMATION_FRAME]:false,
-        [PLAN_ENUM.REQUEST_IDLE_CALLBACK]:false
+      /*   [PLAN_ENUM.REQUEST_ANIMATION_FRAME]:false,
+        [PLAN_ENUM.REQUEST_IDLE_CALLBACK]:false */
+        [PLAN_ENUM.OB_SERVER]:false
     }
 
-    checkResult[PLAN_ENUM.REQUEST_ANIMATION_FRAME] = fn(PLAN_ENUM.REQUEST_ANIMATION_FRAME)
-    checkResult[PLAN_ENUM.REQUEST_IDLE_CALLBACK] = fn(PLAN_ENUM.REQUEST_IDLE_CALLBACK)
+    checkResult[PLAN_ENUM.OB_SERVER] = fn(PLAN_ENUM.OB_SERVER)
 
     return checkResult;
 }
@@ -242,6 +256,6 @@ function stop(){
 
 export {
     setHavePermission,setNoPermission,setSpecialPermission,checkPlan,
-    _requestAnimationFrame,_requestIdleCallback,_setTimeout,
+    _requestAnimationFrame,_requestIdleCallback,_MutationObserver,_setTimeout,
     diffPermissNode
 }

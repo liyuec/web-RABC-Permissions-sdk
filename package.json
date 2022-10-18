@@ -1,13 +1,14 @@
 {
   "name": "web-rabc-permissions-sdk",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": " 后台管理系统RABC通用权限控制规范与规范代码实施js-SDK，包含 节点/按钮/路由 等控制 ，支持hidden,disabled，删除，或则自定义function处理。  通过配置实现RABC的权限控制",
   "main": "dist/index.umd.min.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "webpack --config ./build/webpack.base.config",
     "async": "npm run build && yalc publish",
-    "watch": "nodemon --ignore dist/ --ignore node_modules/ --watch web-RABC-Permissions-sdk/ -C -e ts,tsx,scss,js --debug -x npm run async"
+    "watch": "nodemon --ignore dist/ --ignore node_modules/ --watch web-RABC-Permissions-sdk/ -C -e ts,tsx,scss,js --debug -x npm run async",
+    "changelog": "conventional-changelog -p angular -i CHANGELOG.md -s" 
   },
   "repository": {
     "type": "git",

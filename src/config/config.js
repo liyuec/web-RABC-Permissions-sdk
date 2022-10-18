@@ -23,9 +23,10 @@ const webRabcPermissionSdkOptions = {
 
 
 const PLAN_ENUM = {
-    'REQUEST_ANIMATION_FRAME':'requestAnimationFrame',
-    'REQUEST_IDLE_CALLBACK':'requestIdleCallback',
-    'SET_TIMEOUT':'setTimeout'
+    /* 'REQUEST_ANIMATION_FRAME':'requestAnimationFrame',
+    'REQUEST_IDLE_CALLBACK':'requestIdleCallback', */
+    'SET_TIMEOUT':'setTimeout',
+    'OB_SERVER':'MutationObserver'
 }
 
 const permissionDTO = {
