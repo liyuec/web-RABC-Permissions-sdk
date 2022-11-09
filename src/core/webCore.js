@@ -163,6 +163,10 @@ function doHavePermissDOM(havePermiss){
     })
 }
 
+function _callBackFunc(elem){
+    
+}
+
 function _requestAnimationFrame(){
 
 }
@@ -174,12 +178,40 @@ function _requestIdleCallback(){
 
 const _MutationObserver = MutationObserverFunc()
 
+/*
+    args:
+        permissionDiffResult,millisec
+*/
 function MutationObserverFunc(){
-    let millisec = 0;
-    return function(_millisec){
-        millisec = _millisec;
-        doNoPermissDOM(noPerElems);
-        doHavePermissDOM(haveElems);
+    let _millisec = 0,
+    haveElems = undefined,
+    noPerElems = undefined,
+    beginTime = new Date().getTime(),
+    _timeOut = null;
+
+    return function _mutFunc(args){
+        _millisec = args.millisec;
+
+        let now = new Date().getTime(),
+        _delay = args.delay > 0 ? args.delay : args.millisec;
+
+        if(now - beginTime > _delay){
+            beginTime = new Date().getTime();
+            clearTimeout(_timeOut);
+            _timeOut = null;
+            //可能路由会变化，所以也需要及时取 + 更新；
+            queueMicrotask(()=>{
+                ({haveElems,noPerElems} = getWhoRouter(args.permissionDiffResult));
+                doNoPermissDOM(noPerElems);
+                doHavePermissDOM(haveElems);
+            })
+        }else{
+            if(_timeOut === null){
+                _timeOut = setTimeout(() => {
+                    _mutFunc(args)
+                }, _delay);
+            }
+        }
     }
 }
 
@@ -233,29 +265,22 @@ function _checkPermissionDataType(data){
     }
 }
 
-
-function destroy(){
-
+function isBoolean(val){
+    if(_notNullAndUnde(val)){
+        return Reflect.toString.call(val).slice(8,-1) === 'Boolean'
+    }
+    return false;
 }
 
-function start(){
-
+function _notNullAndUnde(val){
+    return (val !== null && val !==undefined)
 }
 
-function reload(){
 
-}
 
-function setData(){
-    
-}
-
-function stop(){
-    
-}
 
 export {
     setHavePermission,setNoPermission,setSpecialPermission,checkPlan,
     _requestAnimationFrame,_requestIdleCallback,_MutationObserver,_setTimeout,
-    diffPermissNode
+    diffPermissNode,isBoolean
 }

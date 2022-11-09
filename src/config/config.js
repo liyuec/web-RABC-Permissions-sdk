@@ -11,7 +11,7 @@ const webRabcPermissionSdkOptions = {
         //微前端(***************预留***************)
         microLibraryName:undefined
     },
-    //方案  requestAnimationFrame   requestIdleCallback   setTimeout
+    //方案  MutationObserver  setTimeout
     plan:'',
     //不做任何处理的节点
     havePermiss:[],
@@ -53,7 +53,9 @@ const permissionSimpleDTO = {
     //节点描述，方便DEBUG
     describe:'',
     //节点callback
-    callBackFunc:undefined
+    callBackFunc:undefined,
+    //vueTemplate的父节点 (当前.vue最佳)
+    vueTemplateRoot:''
 }
 
 

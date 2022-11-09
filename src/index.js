@@ -5,7 +5,7 @@ from './config/config';
 
 import {setHavePermission,setNoPermission,setSpecialPermission,
     _requestAnimationFrame,_requestIdleCallback,_setTimeout,_MutationObserver,
-    checkPlan,
+    checkPlan,isBoolean,
     diffPermissNode
 } from './core/webCore';
 
@@ -34,12 +34,13 @@ class webRabcPermissionSdk{
             characterData:false
         },
         func:function(args,mutationList,observer){
-            _MutationObserver.call(this,args)
+            //_MutationObserver.call(this,args)
+            _MutationObserver(args)
         }
     };
     //必须是ID
     #obElem = 'app'
-    #obServer = undefined;
+    #obServer = null;
     /*  
         降级方案  requestAnimationFrame   requestIdleCallback   setTimeout
         默认    setTimeout 
@@ -89,6 +90,19 @@ class webRabcPermissionSdk{
         setSpecialPermission.call(this,data);
         return this;
     }
+    /*
+        args:{
+            millisec:int,
+            obServerConfig:{
+                attributes:boolean,
+                childList:boolean,
+                subtree:boolean,
+                characterData:boolean
+            },
+            delay:int,
+            obElem:#id(必须是ID)
+        }
+    */
     #startSDK(args){
         //保存最开始的参数
         this.#args = args;
@@ -96,14 +110,24 @@ class webRabcPermissionSdk{
         //选择控制方式
         let userChoosePlan = this.config.plan,
         millisec = this.#millisec,
-        obElem = this.#obElem;
+        obElem = undefined;
 
         if(!!userChoosePlan && this.#planCheck[userChoosePlan]){
             this.#plan = userChoosePlan;
         }
         
-        millisec = (args && args.millisec) || millisec
-
+        millisec = (args && args.millisec) ? args.millisec : millisec
+        obElem = (args && args.obElem) ? args.obElem : this.#obElem;
+        //MutationObserver参数配置
+        if(args.obServerConfig){
+            let _argsConfig = args.obServerConfig;
+            this.#obServerConfig.config = {
+                attributes:isBoolean(_argsConfig.attributes) ? _argsConfig.attributes : true,
+                childList:isBoolean(_argsConfig.childList) ? _argsConfig.childList : true,
+                subtree:isBoolean(_argsConfig.subtree) ? _argsConfig.subtree : true,
+                characterData:isBoolean(_argsConfig.characterData) ? _argsConfig.characterData : false,
+            }
+        }
 
         switch(this.#plan){                       
           /*   case PLAN_ENUM.REQUEST_ANIMATION_FRAME:
@@ -113,13 +137,15 @@ class webRabcPermissionSdk{
                 _requestIdleCallback.call(this)
             break; */
             case PLAN_ENUM.OB_SERVER:
-                if(this.#obServer){
-                    this.#obServer = new MutationObserver(this.obServerConfig.func.bind(this,
+                if(!this.#obServer){
+                    this.#obServer = new MutationObserver(this.#obServerConfig.func.bind(this,
                         {
-                            millisec:millisec
+                            permissionDiffResult:this.#permissionDiffResult,
+                            millisec:millisec,
+                            delay:args.delay ? args.delay : this.#millisec
                         }))
                 }
-                this.#obServer.obServer(document.getElementById(obElem),this.obServerConfig.config);
+                this.#obServer.observe(document.getElementById(obElem),this.#obServerConfig.config);
             break;
             case PLAN_ENUM.SET_TIMEOUT:     
                 this.timer = _setTimeout.call(this,this.#permissionDiffResult,millisec)
