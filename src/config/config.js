@@ -3,14 +3,14 @@ const webRabcPermissionSdkOptions = {
     debugStr:'',
     permission:{
         //  permission 得到的方法，传入一个function
-        Func:undefined,
+        Func:void 0,
         isRemote:false,
         Refresh:0,
-        //默认无框架(***************预留***************)
-        libraryName:undefined,
         //微前端(***************预留***************)
-        microLibraryName:undefined
+        microLibraryName:void 0
     },
+    //只支持获取vue的this   vue | react  非微前端配置
+    libraryName:'',
     //方案  MutationObserver  setTimeout
     plan:'',
     //不做任何处理的节点
@@ -46,15 +46,15 @@ const permissionSimpleDTO = {
     routerPath:'',
     //控制节点的ID或则ClassName
     eleIdOrClass:'',
-    //hidden | removeNode | callback | 
+    //hidden | removeNode       ....暂未实现    默认hidden   考虑removeNode影响DOM，从而影响虚拟DOM，做测试后再实现
     resultType:'',
     //inline | inline-block | block | flex 等CSS节点
     showElemType:'',
     //节点描述，方便DEBUG
     describe:'',
     //节点callback
-    callBackFunc:undefined,
-    //vueTemplate的父节点 (当前.vue最佳)
+    callBackFunc:void 0,
+    //vueTemplate的父节点 (当前.vue最佳)   #id  .class
     vueTemplateRoot:''
 }
 

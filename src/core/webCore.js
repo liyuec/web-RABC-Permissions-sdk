@@ -1,6 +1,8 @@
 import {PLAN_ENUM} from '../config/config'
 import {MESSAGE,conWar,conErr,conLog} from '../config/message'
 
+const _toString = typeof Reflect !== undefined ? Reflect.toString : Object.toString;
+
 function setHavePermission(havePermiss){
     this.config.havePermiss = [...havePermiss];
 }
@@ -14,15 +16,18 @@ function setSpecialPermission(specialPermiss){
 }
 
 //have permisson 和 No permission 的会冲突，diff掉 no里的permisson
+//specialPermiss 不做任何计算
 function diffPermissNode(permissionCache,config){
     _checkPermissionDataType(config)
-    let {havePermiss,noPermiss} = permissionCache,
+    let {havePermiss,noPermiss,specialPermiss} = permissionCache,
     _diffResult ={
         havePermiss:{},
-        noPermiss:{}
+        noPermiss:{},
+        specialPermiss:{}
     },
     //去重后的结果array
-    _havePermiss = {},_noPermiss = {}
+    _havePermiss = {},_noPermiss = {},
+    _specialPermiss = {}
 
     let getGroup = (function(){
         return function(groups,cb){
@@ -87,9 +92,15 @@ function diffPermissNode(permissionCache,config){
         
     }
 
+    //specialPermiss单独计算,全部作用
+    if(specialPermiss.length > 0){
+        _specialPermiss =  getGroup(specialPermiss)
+    }
+
     _diffResult = {
         havePermiss:_havePermiss,
-        noPermiss:_noPermiss
+        noPermiss:_noPermiss,
+        specialPermiss:_specialPermiss
     }
 
     return _diffResult;
@@ -97,8 +108,8 @@ function diffPermissNode(permissionCache,config){
 
 //根据当前路由path得到 当前需要处理的权限节点数组
 function getWhoRouter(permissionDiffResult){
-    let haveElems = [],noPerElems = [],
-    {havePermiss,noPermiss} = permissionDiffResult,
+    let haveElems = [],noPerElems = [],specialElems = [],
+    {havePermiss,noPermiss,specialPermiss} = permissionDiffResult,
     _href = window.location.href;
 
     Object.keys(noPermiss).forEach(routerPath=>{
@@ -113,58 +124,168 @@ function getWhoRouter(permissionDiffResult){
         }
     })
 
+    Object.keys(specialPermiss).forEach(routerPath=>{
+        if(_href.indexOf(routerPath) > -1){
+            specialElems.push(...specialPermiss[routerPath])
+        }
+    })
+
     return {
         haveElems:haveElems,
-        noPerElems:noPerElems
+        noPerElems:noPerElems,
+        specialElems:specialElems
     }
 }
 
-function doNoPermissDOM(noPermiss){
-    noPermiss.forEach(ele =>{
-        if(ele.eleIdOrClass.startsWith('#')){
-            let elem = document.querySelector(ele.eleIdOrClass);
+function doNoPermissDOM(noPermiss,permissionCache){
+    noPermiss.forEach(_ele =>{
+         //如果有  则忽视节点可能没有的问题；单独执行callbackFunc
+        if(!!_ele.callBackFunc){
+            //callBackFunc节点
+            _elemCallBackFunc(_ele,permissionCache)
+            return;
+        }
+        if(_ele.eleIdOrClass.startsWith('#')){
+            let elem = document.querySelector(_ele.eleIdOrClass);
             if(elem){
-                if(elem.style.display != 'none'){
-                    elem.style.display = 'none'
+                if(!!_ele.showElemType){
+                    elem.style.setProperty('display',_ele.showElemType,'important');
+                }else{
+                    if(elem.style.display != 'none'){
+                        elem.style.display = 'none'
+                    }
                 }
             }
-        }else if(ele.eleIdOrClass.startsWith('.')){
-            let elemList =  document.querySelectorAll(ele.eleIdOrClass);
+        }else if(_ele.eleIdOrClass.startsWith('.')){
+            let elemList =  document.querySelectorAll(_ele.eleIdOrClass);
             elemList.forEach(elem =>{
-                if(elem.style.display != 'none'){
-                    elem.style.display = 'none'
+                if(!!_ele.showElemType){
+                    elem.style.setProperty('display',_ele.showElemType,'important');
+                }else{
+                    if(elem.style.display != 'none'){
+                        elem.style.display = 'none'
+                    }
                 }
             })
         }
     })
 }
 
-function doHavePermissDOM(havePermiss){
-    havePermiss.forEach(ele => {
-        if(ele.eleIdOrClass.startsWith('#')){
-            let elem = document.querySelector(ele.eleIdOrClass);
+function doHavePermissDOM(havePermiss,permissionCache){
+    havePermiss.forEach(_ele => {
+         //如果有  则忽视节点可能没有的问题；单独执行callbackFunc
+        if(!!_ele.callBackFunc){
+            //callBackFunc节点
+            _elemCallBackFunc(_ele,permissionCache)
+            return;
+        }
+        if(_ele.eleIdOrClass.startsWith('#')){
+            let elem = document.querySelector(_ele.eleIdOrClass);
             if(elem){
-                if(!!ele.showElemType){
-                    elem.style.setProperty('display',ele.showElemType,'important');
+                if(!!_ele.showElemType){
+                    elem.style.setProperty('display',_ele.showElemType,'important');
                 }else{
                     if(elem.style.display == 'none'){
                         elem.style.display = ''
                     }
                 }
             }
-        }else if(ele.eleIdOrClass.startsWith('.')){
-            let elemList =  document.querySelectorAll(ele.eleIdOrClass);
+        }else if(_ele.eleIdOrClass.startsWith('.')){
+            let elemList =  document.querySelectorAll(_ele.eleIdOrClass);
             elemList.forEach(elem =>{
-                if(elem.style.display == 'none'){
-                    elem.style.display = ''
+                if(!!_ele.showElemType){
+                    elem.style.setProperty('display',_ele.showElemType,'important');
+                }else{
+                    if(elem.style.display == 'none'){
+                        elem.style.display = ''
+                    }
                 }
             })
         }
     })
 }
 
-function _callBackFunc(elem){
+/*
+    special 必须配置 showElemType 否则没有效果
+    要么配置 callBackFunc；
+*/
+function doSpecialPermissDOM(specialPermiss,permissionCache){
+    specialPermiss.forEach(_ele=>{
+            //如果有  则忽视节点可能没有的问题；单独执行callbackFunc
+           if(!!_ele.callBackFunc){
+               //callBackFunc节点
+               _elemCallBackFunc(_ele,permissionCache)
+               return;
+           }
+           if(_ele.eleIdOrClass.startsWith('#')){
+               let elem = document.querySelector(_ele.eleIdOrClass);
+               if(elem){
+                   if(!!_ele.showElemType){
+                       elem.style.setProperty('display',_ele.showElemType,'important');
+                   }
+               }
+           }else if(_ele.eleIdOrClass.startsWith('.')){
+               let elemList =  document.querySelectorAll(_ele.eleIdOrClass);
+               elemList.forEach(elem =>{
+                    if(!!_ele.showElemType){
+                        elem.style.setProperty('display',_ele.showElemType,'important');
+                    }
+               })
+           }
+    })
+}
+
+/*
+    配置上必须是#    若以.开头，也只取第0个索引
+*/
+function _elemCallBackFunc(elem,permissionCache){
+  
+    //let {libraryName:_libraryName} = permissionCache.permission,
+    let {libraryName:_libraryName} = permissionCache,
+    {vueTemplateRoot:_vueTemplateRoot,callBackFunc:_callBackFunc} = elem;
+
+    if(!isFunction(_callBackFunc)){
+        throw new Error(MESSAGE.MUST_FUNCTION)
+        return;
+    }
+
+    let _spaThis = null,
+    tools = void 0,
+    vueElem = null;
+    if(_libraryName === 'vue'){
+        vueElem = document.querySelector(_vueTemplateRoot);
+        
+        //if(Reflect.toString.call(vueElem).slice(8,-1) === 'HTMLDivElement'){
+        if(_toString.call(vueElem).slice(8,-1) === 'HTMLDivElement'){   
+            _spaThis = vueElem.__vue__;
+        }
+    }
+
+    if(!_spaThis){
+        _spaThis = window;
+    }
+
+    tools = {
+        $getById(el){
+            return document.getElementById(el)
+        },
+        $query(el){
+            return document.querySelector(el)
+        },
+        $queryAll(el){
+            return document.querySelectorAll(el)
+        },
+        $getTagName(el){
+            return document.getElementsByTagName(el)
+        }
+    }
     
+    //不考虑class写法
+    _callBackFunc.apply(_spaThis,[tools]);
+    //释放
+    tools = null;
+    vueElem = null;
+    _spaThis = null;
 }
 
 function _requestAnimationFrame(){
@@ -184,8 +305,9 @@ const _MutationObserver = MutationObserverFunc()
 */
 function MutationObserverFunc(){
     let _millisec = 0,
-    haveElems = undefined,
-    noPerElems = undefined,
+    haveElems = void 0,
+    noPerElems = void 0,
+    specialElems = void 0,
     beginTime = new Date().getTime(),
     _timeOut = null;
 
@@ -193,7 +315,8 @@ function MutationObserverFunc(){
         _millisec = args.millisec;
 
         let now = new Date().getTime(),
-        _delay = args.delay > 0 ? args.delay : args.millisec;
+        _delay = args.delay > 0 ? args.delay : args.millisec,
+        permissionCache = args.permissionCache;
 
         if(now - beginTime > _delay){
             beginTime = new Date().getTime();
@@ -201,9 +324,10 @@ function MutationObserverFunc(){
             _timeOut = null;
             //可能路由会变化，所以也需要及时取 + 更新；
             queueMicrotask(()=>{
-                ({haveElems,noPerElems} = getWhoRouter(args.permissionDiffResult));
-                doNoPermissDOM(noPerElems);
-                doHavePermissDOM(haveElems);
+                ({haveElems,noPerElems,specialElems} = getWhoRouter(args.permissionDiffResult));
+                doSpecialPermissDOM(specialElems,permissionCache);
+                doNoPermissDOM(noPerElems,permissionCache);
+                doHavePermissDOM(haveElems,permissionCache);
             })
         }else{
             if(_timeOut === null){
@@ -217,13 +341,14 @@ function MutationObserverFunc(){
 
 
 
-function _setTimeout(permissionDiffResult,millisec){
+function _setTimeout(permissionDiffResult,millisec,permissionCache){
     let _this = this,
-    {haveElems,noPerElems} = getWhoRouter(permissionDiffResult)
+    {haveElems,noPerElems,specialElems} = getWhoRouter(permissionDiffResult)
     _this.timer = setTimeout(() => {
-        doNoPermissDOM(noPerElems);
-        doHavePermissDOM(haveElems);
-        _setTimeout.call(_this,permissionDiffResult,millisec)
+        doSpecialPermissDOM(specialElems,permissionCache);
+        doNoPermissDOM(noPerElems,permissionCache);
+        doHavePermissDOM(haveElems,permissionCache);
+        _setTimeout.call(_this,permissionDiffResult,millisec,permissionCache);
     }, millisec);
 }   
 
@@ -265,15 +390,33 @@ function _checkPermissionDataType(data){
     }
 }
 
+function getType(val){
+    //return Reflect.toString.call(val).slice(8,-1)
+    return _toString.call(val).slice(8,-1)
+}
+
 function isBoolean(val){
     if(_notNullAndUnde(val)){
-        return Reflect.toString.call(val).slice(8,-1) === 'Boolean'
+        return getType(val) === 'Boolean'
     }
     return false;
 }
 
+//必须是function 不能是箭头函数
+function isFunction(val){
+    if(getType(val) === 'Function'){
+        if(val.prototype === void 0){
+            return false;
+        }else{
+            return true;
+        }
+    }else{
+        return false;
+    }
+}
+
 function _notNullAndUnde(val){
-    return (val !== null && val !==undefined)
+    return (val !== null && val !== void 0)
 }
 
 

@@ -22,7 +22,7 @@ class webRabcPermissionSdk{
     };
     //如过有timer， 记得timer的ID
     timer = 0;
-    #args = undefined;
+    #args = void 0;
     //setTimeout间隔
     #millisec = 500;
     //MutationObserver
@@ -38,6 +38,8 @@ class webRabcPermissionSdk{
             _MutationObserver(args)
         }
     };
+    //执行顺序
+    #actionOrder = [];
     //必须是ID
     #obElem = 'app'
     #obServer = null;
@@ -110,7 +112,7 @@ class webRabcPermissionSdk{
         //选择控制方式
         let userChoosePlan = this.config.plan,
         millisec = this.#millisec,
-        obElem = undefined;
+        obElem = void 0;
 
         if(!!userChoosePlan && this.#planCheck[userChoosePlan]){
             this.#plan = userChoosePlan;
@@ -142,16 +144,17 @@ class webRabcPermissionSdk{
                         {
                             permissionDiffResult:this.#permissionDiffResult,
                             millisec:millisec,
-                            delay:args.delay ? args.delay : this.#millisec
+                            delay:args.delay ? args.delay : this.#millisec,
+                            permissionCache:this.#permissionCache
                         }))
                 }
                 this.#obServer.observe(document.getElementById(obElem),this.#obServerConfig.config);
             break;
             case PLAN_ENUM.SET_TIMEOUT:     
-                this.timer = _setTimeout.call(this,this.#permissionDiffResult,millisec)
+                this.timer = _setTimeout.call(this,this.#permissionDiffResult,millisec,this.#permissionCache)
             break;
             default:
-                this.timer = _setTimeout.call(this,this.#permissionDiffResult,millisec)
+                this.timer = _setTimeout.call(this,this.#permissionDiffResult,millisec,this.#permissionCache)
             break;
         }
     }
@@ -162,7 +165,7 @@ class webRabcPermissionSdk{
         return this;
     }
     //可能传新的参数 会覆盖之前的参数
-    reload(args = undefined){
+    reload(args = void 0){
         this.#running = true;
         this.start(args ? args : this.#args);
         return this;
@@ -229,12 +232,12 @@ const getNewPermissionDTO = function(){
     return obj;
 }
 
-const getNewPermissionSimpleDTP = function(){
+const getNewPermissionSimpleDTO = function(){
     const obj = JSON.parse(JSON.stringify(permissionSimpleDTO))
     return obj;
 }
 
 
 export {
-    webRabcPermisson,webRabcPermissionSdkOptions,getNewPermissionDTO,getNewPermissionSimpleDTP,PLAN_ENUM
+    webRabcPermisson,webRabcPermissionSdkOptions,getNewPermissionDTO,getNewPermissionSimpleDTO,PLAN_ENUM
 }
