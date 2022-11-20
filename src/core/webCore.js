@@ -1,4 +1,4 @@
-import {PLAN_ENUM} from '../config/config'
+import {PLAN_ENUM,ACTION_ORDER} from '../config/config'
 import {MESSAGE,conWar,conErr,conLog} from '../config/message'
 
 const _toString = typeof Reflect !== undefined ? Reflect.toString : Object.toString;
@@ -308,26 +308,41 @@ function MutationObserverFunc(){
     haveElems = void 0,
     noPerElems = void 0,
     specialElems = void 0,
+    _actionOrder = [],
     beginTime = new Date().getTime(),
     _timeOut = null;
-
+    //console.log('--------------MutationObserverFunc --------------')
     return function _mutFunc(args){
         _millisec = args.millisec;
-
+        //执行顺序
+        _actionOrder = args.actionOrder;
+        //console.log('--------------MutationObserverFunc begin--------------')
         let now = new Date().getTime(),
         _delay = args.delay > 0 ? args.delay : args.millisec,
         permissionCache = args.permissionCache;
 
         if(now - beginTime > _delay){
+            //console.log('******************************DO MutationServer:******************************')
             beginTime = new Date().getTime();
             clearTimeout(_timeOut);
             _timeOut = null;
             //可能路由会变化，所以也需要及时取 + 更新；
             queueMicrotask(()=>{
                 ({haveElems,noPerElems,specialElems} = getWhoRouter(args.permissionDiffResult));
-                doSpecialPermissDOM(specialElems,permissionCache);
-                doNoPermissDOM(noPerElems,permissionCache);
-                doHavePermissDOM(haveElems,permissionCache);
+                _actionOrder.forEach(action => {
+                    switch(action){
+                        case ACTION_ORDER.noPermiss:
+                            doNoPermissDOM(noPerElems,permissionCache);
+                        break;
+                        case ACTION_ORDER.doHavePermiss:
+                            doHavePermissDOM(haveElems,permissionCache);
+                        break;
+                        case ACTION_ORDER.doSpecialPermiss:
+                            doSpecialPermissDOM(specialElems,permissionCache);
+                        break;
+                    }
+                })
+      
             })
         }else{
             if(_timeOut === null){
@@ -341,13 +356,28 @@ function MutationObserverFunc(){
 
 
 
-function _setTimeout(permissionDiffResult,millisec,permissionCache){
+function _setTimeout(permissionDiffResult,millisec,permissionCache,actionOrder){
     let _this = this,
-    {haveElems,noPerElems,specialElems} = getWhoRouter(permissionDiffResult)
+    _actionOrder = [],
+    {haveElems,noPerElems,specialElems} = getWhoRouter(permissionDiffResult);
+
+    //执行顺序
+    _actionOrder = actionOrder;
+
     _this.timer = setTimeout(() => {
-        doSpecialPermissDOM(specialElems,permissionCache);
-        doNoPermissDOM(noPerElems,permissionCache);
-        doHavePermissDOM(haveElems,permissionCache);
+        _actionOrder.forEach(action => {
+            switch(action){
+                case ACTION_ORDER.noPermiss:
+                    doNoPermissDOM(noPerElems,permissionCache);
+                break;
+                case ACTION_ORDER.doHavePermiss:
+                    doHavePermissDOM(haveElems,permissionCache);
+                break;
+                case ACTION_ORDER.doSpecialPermiss:
+                    doSpecialPermissDOM(specialElems,permissionCache);
+                break;
+            }
+        })
         _setTimeout.call(_this,permissionDiffResult,millisec,permissionCache);
     }, millisec);
 }   

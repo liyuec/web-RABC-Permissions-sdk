@@ -18,7 +18,9 @@ const webRabcPermissionSdkOptions = {
     //需要diplay:none 或则 删除 或则 执行用户callBack 的节点
     noPermiss:[],
     //特殊的节点   需要diplay:none 或则 删除 或则 执行用户callBack 的节点
-    specialPermiss:[]
+    specialPermiss:[],
+    //执行顺序  默认 have->no->special
+    actionOrder:[]
 }
 
 
@@ -27,6 +29,16 @@ const PLAN_ENUM = {
     'REQUEST_IDLE_CALLBACK':'requestIdleCallback', */
     'SET_TIMEOUT':'setTimeout',
     'OB_SERVER':'MutationObserver'
+}
+
+
+/*
+    执行顺序枚举
+*/
+const ACTION_ORDER = {
+    'doNoPermiss':'doNoPermiss',
+    'doHavePermiss':'doHavePermiss',
+    'doSpecialPermiss':'doSpecialPermiss'
 }
 
 const permissionDTO = {
@@ -60,5 +72,5 @@ const permissionSimpleDTO = {
 
 
 export {
-    webRabcPermissionSdkOptions,permissionDTO,permissionSimpleDTO,PLAN_ENUM
+    webRabcPermissionSdkOptions,permissionDTO,permissionSimpleDTO,PLAN_ENUM,ACTION_ORDER
 }

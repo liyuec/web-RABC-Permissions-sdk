@@ -1,5 +1,5 @@
 import {webRabcPermissionSdkOptions,permissionDTO,permissionSimpleDTO,
-    PLAN_ENUM
+    PLAN_ENUM,ACTION_ORDER
 } 
 from './config/config';
 
@@ -35,23 +35,25 @@ class webRabcPermissionSdk{
         },
         func:function(args,mutationList,observer){
             //_MutationObserver.call(this,args)
+            //console.log('this.#obServer callback')
             _MutationObserver(args)
         }
     };
-    //执行顺序
-    #actionOrder = [];
     //必须是ID
     #obElem = 'app'
     #obServer = null;
     /*  
-        降级方案  requestAnimationFrame   requestIdleCallback   setTimeout
+        降级方案  setTimeout
         默认    setTimeout 
+        动作    requestAnimationFrame   requestIdleCallback   
     */
     //#plan = PLAN_ENUM.SET_TIMEOUT;
     #plan = PLAN_ENUM.SET_TIMEOUT;
     #planCheck = null;
-    #version = '1.0.0';
+    #version = '1.1.0';
     #running = false;
+    //执行顺序
+    #actionOrder = [];
     constructor(options = null){
         if(options){
             this.config = options;
@@ -109,14 +111,23 @@ class webRabcPermissionSdk{
         //保存最开始的参数
         this.#args = args;
 
-        //选择控制方式
+        /*
+            1   选择控制方式
+            2   控制方式
+        */
         let userChoosePlan = this.config.plan,
         millisec = this.#millisec,
+        actionOrder = !!this.config.actionOrder.length ? this.config.actionOrder : Reflect.ownKeys(ACTION_ORDER),
         obElem = void 0;
+
 
         if(!!userChoosePlan && this.#planCheck[userChoosePlan]){
             this.#plan = userChoosePlan;
         }
+
+        
+        this.#actionOrder = actionOrder;
+        this.config.actionOrder =  actionOrder;
         
         millisec = (args && args.millisec) ? args.millisec : millisec
         obElem = (args && args.obElem) ? args.obElem : this.#obElem;
@@ -139,29 +150,44 @@ class webRabcPermissionSdk{
                 _requestIdleCallback.call(this)
             break; */
             case PLAN_ENUM.OB_SERVER:
+               // console.log('this.#obServer begin:',!this.#obServer,this.#obServer)
                 if(!this.#obServer){
-                    this.#obServer = new MutationObserver(this.#obServerConfig.func.bind(this,
-                        {
-                            permissionDiffResult:this.#permissionDiffResult,
-                            millisec:millisec,
-                            delay:args.delay ? args.delay : this.#millisec,
-                            permissionCache:this.#permissionCache
-                        }))
+                    //console.log('this.#obServer begin2:',!this.#obServer,this.#obServer)
+                    this.#obServer = new MutationObserver(
+                            this.#obServerConfig.func.bind(this,
+                            {
+                                permissionDiffResult:this.#permissionDiffResult,
+                                millisec:millisec,
+                                delay:args.delay ? args.delay : this.#millisec,
+                                permissionCache:this.#permissionCache,
+                                actionOrder: this.#actionOrder
+                            })
+                        )
+                    //console.log('this.#obServer begin3:',!this.#obServer,this.#obServer)
                 }
+                
+                //console.log('document.getElementById(obElem):',document.getElementById(obElem))
                 this.#obServer.observe(document.getElementById(obElem),this.#obServerConfig.config);
+                //console.log('takeRecords:',this.#obServer.takeRecords()  )
+                //console.log('this.#obServer end:',this.#obServer)
             break;
             case PLAN_ENUM.SET_TIMEOUT:     
-                this.timer = _setTimeout.call(this,this.#permissionDiffResult,millisec,this.#permissionCache)
+                this.timer = _setTimeout.call(this,this.#permissionDiffResult,millisec,this.#permissionCache,this.#actionOrder)
             break;
             default:
-                this.timer = _setTimeout.call(this,this.#permissionDiffResult,millisec,this.#permissionCache)
+                this.timer = _setTimeout.call(this,this.#permissionDiffResult,millisec,this.#permissionCache,this.#actionOrder)
             break;
         }
     }
     start(args){
         this.#running = true;
         this.#permissionDiffResult = diffPermissNode(this.#permissionCache,this.config);
+        try{
         this.#startSDK(args);
+
+        }catch(err){
+            console.error('err:',err)
+        }
         return this;
     }
     //可能传新的参数 会覆盖之前的参数
@@ -239,5 +265,5 @@ const getNewPermissionSimpleDTO = function(){
 
 
 export {
-    webRabcPermisson,webRabcPermissionSdkOptions,getNewPermissionDTO,getNewPermissionSimpleDTO,PLAN_ENUM
+    webRabcPermisson,webRabcPermissionSdkOptions,getNewPermissionDTO,getNewPermissionSimpleDTO,PLAN_ENUM,ACTION_ORDER
 }
