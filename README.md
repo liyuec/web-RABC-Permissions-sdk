@@ -19,6 +19,7 @@
 <ul>
   <li><a href="#npm-install">npm install</a></li>
   <li><a href="#基本使用">基本使用</a></li>
+  <li><a href="#DEMO地址">DEMO地址</a></li>
   <li><a href="#基本options详解">基本options详解</a></li>
   <li>
     <a href="#接口">具体配置含义</a>
@@ -40,25 +41,38 @@
 npm i web-rabc-permissions-sdk -S
 ```
 
+## 基本使用[⬆](#目录)<!-- Link generated with jump2header -->
+```javascript
+
+    import {webRabcPermisson,getNewPermissionSimpleDTO,PLAN_ENUM,webRabcPermissionSdkOptions} from 'web-rabc-permissions-sdk';
+    /*
+        webRabcPermissionSdkOptions     ：基本配置
+        PLAN_ENUM                       ：执行计划（程序会自动做降级处理)
+        getNewPermissionSimpleDTO       ：每个路由下可能存在的权限
+        webRabcPermisson                ：实例类
+    */
+
+```
+
 
 ## 工程架构总览[⬆](#目录)<!-- Link generated with jump2header -->
 
 ![SDK架构图](https://s1.ax1x.com/2022/11/23/z3WOmQ.png)
 
-###程序执行大概步骤
-<ul>
-  <li>[1]程序会在单例模式的基础上，返回现有实例，保证全局唯一。</li>
-  <li>[2]通过内部类constructor 缓存最初传入参数与权限节点</li>
-  <li>[3]start() </li>
+### 程序执行大概步骤
+<ol>
+  <li>程序会在单例模式的基础上，返回现有实例，保证全局唯一。</li>
+  <li>通过内部类constructor 缓存最初传入参数与权限节点</li>
+  <li>start() </li>
   <li>
-    <ul>
-        <li>--> 首先会diff掉 拥有权限与没有权限的数据，解决互斥，减少操作DOM的情况。</li>
-        <li>----> 根据routerPath 和 eleIdOrClass 进行权限节点是否相同的判断。</li>
-        <li>--> 其次判断传入执行计划，若浏览器不支持，则降级为setTimeout作为执行计划。</li>
-        <li> --> 若有function执行黑名单，则会throw错误（<b>后续计划</b>)，用户可自由配置不允许操作的范围，比如cookie操作/localStorage操作等</li>
-        <li> --> 最终根据执行计划，匹配当前路由与根据routerPath的关系，执行当前权限。</li>
-    </ul>
+    <ol>
+        <li>首先会diff掉 拥有权限与没有权限的数据，解决互斥，减少操作DOM的情况。</li>
+        <li>根据routerPath 和 eleIdOrClass 进行权限节点是否相同的判断。</li>
+        <li>其次判断传入执行计划，若浏览器不支持，则降级为setTimeout作为执行计划。</li>
+        <li>若有function执行黑名单，则会throw错误（<b>后续计划</b>)，用户可自由配置不允许操作的范围，比如cookie操作/localStorage操作等</li>
+        <li>最终根据执行计划，匹配当前路由与根据routerPath的关系，执行当前权限。</li>
+    </ol>
   </li>
-  <li>[4]权限根据执行计划执行</li>
-</ul>
+  <li>权限根据执行计划执行</li>
+</ol>
 
