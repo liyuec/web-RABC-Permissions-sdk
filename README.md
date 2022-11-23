@@ -1,6 +1,6 @@
 # web-RABC-Permissions-sdk
 
-![web-rabc-permissions-sdk](https://imgse.com/i/z3jf0I)
+![web-rabc-permissions-sdk](https://s1.ax1x.com/2022/11/23/z3jf0I.md.png)
 <p>
 后台管理系统RABC通用权限控制规范与规范代码实施js-SDK，包含 节点/按钮/路由 等控制 ，
 <br />
