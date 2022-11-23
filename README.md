@@ -1,6 +1,6 @@
 # web-RABC-Permissions-sdk
 
-![web-rabc-permissions-sdk](https://s1.ax1x.com/2022/11/23/z3WOmQ.png)
+![web-rabc-permissions-sdk](https://s1.ax1x.com/2022/11/23/z3jf0I.png)
 <p>
 后台管理系统RABC通用权限控制规范与规范代码实施js-SDK，包含 节点/按钮/路由 等控制 ，
 <br />
@@ -39,3 +39,10 @@
 ## 工程架构总览[⬆](#目录)<!-- Link generated with jump2header -->
 
 ![SDK架构图](https://s1.ax1x.com/2022/11/23/z3WOmQ.png)
+
+###
+
+## npm install
+```shell
+npm i web-rabc-permissions-sdk -S
+```
