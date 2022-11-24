@@ -67,12 +67,11 @@ npm i web-rabc-permissions-sdk -S
                 用户A与用户B，同时拥有角色1,但是用户A 需要某个时间段不拥有某些权限，则设置specialPermiss;
             </li>
             <li>
-                某些角色需要使用特定功能，比如使用<b>vue</b>某个 <template>内的方法或则Data，比如使用用户配置的自定义<b>function</b>
+                某些角色需要使用特定功能，比如使用<b>vue</b>某个 "template"内的方法或则Data，比如使用用户配置的自定义<b>function</b>
             </li>
         </ol>
     </li>
 </ul>
-<p></p>
 <ul>
     <li>
         其中havePermiss 与 noPermiss 会进行 各自的routerPath 与 eleIdOrClass 简单diff判断，进行去重，得到一个以路由为属性的对象，通过当前路由与对象节点匹配，保证执行期间的最小次数。
@@ -83,7 +82,7 @@ npm i web-rabc-permissions-sdk -S
 </ul>
 
 
-```javascript
+```js
  
     //基本使用代码如下
 
@@ -109,7 +108,7 @@ npm i web-rabc-permissions-sdk -S
     */
     ajax('get',url,{...userInfo}).then(res=>{
         let {result} = res;
-        //用户拥有的权限节点
+        //角色 拥有的权限节点
         _havePermissArr = result.map(i=>{
             //得到实体构建节点对象
             let _permissDTO = new getNewPermissionSimpleDTO();
@@ -124,17 +123,152 @@ npm i web-rabc-permissions-sdk -S
             return _permissDTO
         })
 
-        //
+        //角色 不可拥有节点
+        _noPermissArr= result.map(i=>{
+            //得到实体构建节点对象
+            let _permissDTO = new getNewPermissionSimpleDTO();
+            //该节点的描述，方便debug理解，可空
+            _permissDTO.describe = `该节点的描述，方便debug理解，可空`;
+            //该节点ID或则className  其中id为  #id;className为 .className
+            _permissDTO.eleIdOrClass = `.className`
+            //hidden | removeNode   默认hidden，因为removeNode会直接导致DOM结构变更，可能造成副作用，本期暂未实现
+            _permissDTO.resultType = 'hidden'
+            //具体路由地址，程序执行会根据路由地址匹配，减少执行次数
+            _permissDTO.routerPath = '/c/vuepage1'
+            return _permissDTO
+        })
+
+                //角色 不可拥有节点
+        _specialArr= result.map(i=>{
+            //得到实体构建节点对象
+            let _permissDTO = new getNewPermissionSimpleDTO();
+            //该节点的描述，方便debug理解，可空
+            _permissDTO.describe = `该节点的描述，方便debug理解，可空`;
+            //该节点ID或则className  其中id为  #id;className为 .className
+            _permissDTO.eleIdOrClass = `.className`
+            //hidden | removeNode   默认hidden，因为removeNode会直接导致DOM结构变更，可能造成副作用，本期暂未实现
+            _permissDTO.resultType = 'hidden'
+            //具体路由地址，程序执行会根据路由地址匹配，减少执行次数
+            _permissDTO.routerPath = '/c/vuepage1'
+            return _permissDTO
+        })
+
+        webRabcPermissionSdkOptions.havePermiss = _havePermissArr;
+        webRabcPermissionSdkOptions.noPermiss = _noPermissArr;
+        webRabcPermissionSdkOptions.specialPermiss = _specialArr;
+
+        //执行计划  MutationObserver or setTimeout
+        webRabcPermissionSdkOptions.plan = PLAN_ENUM.OB_SERVER;
+        //对象框架  目前支持获取vue this, react也适用，但是不能获取到某个react组件下的this
+        webRabcPermissionSdkOptions.libraryName = 'vue'
+        let _webRabc = new webRabcPermisson(webRabcPermissionSdkOptions);
+
+        //启动权限
+        _webRabc.start({
+        //执行时间
+        millisec:500, 
+        //obServer的执行节点设置
+        obServerConfig:{
+                attributes:false,
+                childList:true,
+                subtree:true,
+                characterData:false
+            },
+        //节流时间
+        delay:500,
+        //必须指定一个observer的容器节点，必须是ID
+        obElem:'app'
+        });
 
     })
+
+    //debug时 获取执行情况
+     console.dir(_webRabc.getSdkInfo())
 
 ```
 
 
+## DEMO地址[⬆](#目录)<!-- Link generated with jump2header -->
+
+## 基本options详解[⬆](#目录)<!-- Link generated with jump2header -->
+
+### PLAN_ENUM   （可选）
+
+<ul>
+    <li>执行计划枚举，在执行计划的时候通过选中方案进行执行。</li>
+    <li>如果不支持Mutation方案，则自动降级为setTimeout。</li>
+    <li>其中各方案带有节流，以便造成额外的性能开销。</li>
+    <li>默认方案为SET_TIMEOUT</li>
+</ul>
+
+| 属性名            | 描述 |
+| ---------------- | ----------- |
+| SET_TIMEOUT          | 通过setTimout实现执行方案 |
+| OB_SERVER         | 通过MutationObserver实现执行方案 |
+
+
+### ACTION_ORDER   （可选）
+
+<ul>
+    <li>设置当前web应用权限执行顺序逻辑</li>
+    <li>默认执行顺序 ---> 当前不可拥有权限 ---> 当前必须拥有权限 ---> 当前特定权限</li>
+</ul>
+
+| 属性名            | 描述 |
+| ---------------- | ----------- |
+| doNoPermiss          | 不可拥有 权限 |
+| doHavePermiss         | 可拥有 权限 |
+| doSpecialPermiss         | 特殊权限 |
+
+
+### permissionSimpleDTO   （必选）
+
+<ul>
+    <li>设置当前web应用权限 havePermiss、noPermiss、specialPermiss 存储索引内容</li>
+    <li>每个节点固定DTO描述</li>
+</ul>
+
+| 属性名            |是否必选| 描述 |
+| ---------------- | ----------- | ----------- |
+| routerPath        |必选| 当前路由关键字（react,vue,传统web应用), 也可以直接取"/"，表示所有路由匹配|
+| eleIdOrClass      |必选| 当前节点的ID或则ClassName，若是ID，则赋值"#具体ID",若是className，则赋值".具体ClassName"，最终通过querySelector和querySelectorAll获取，建议使用ID |
+| resultType        |可选| 默认hidden |
+| showElemType     |可选|用户自定义display内容，设置后该节点将变为 display:用户内容!important;若赋值，则不会执行resultType逻辑|
+|describe|          |可选| 节点描述，方便DEBUG查看具体含义，理论上为String类型最大值|
+|callBackFunc|      |可选| 当前节点执行方法，默认为void 0；若赋值，则只会执行当前callBackFunc，目前提供具体的4个方法，见如下代码，<b>下个版本计划加入sandBox进行安全信任配置</b>
+|vueTemplateRoot|   |可选| 当前节点可使用的vue对象，默认为""。若当前节点为正确的vue template ID，则可以在callBackFunc下得到当前vue 的this,通过this调用，若失败或则为""，this则为window
+
+```js
+
+    //callBackFunc示例
+    callBackFunc = function(tools){
+        tools.$queryAll('.router_main i').forEach(i =>{
+            //你的业务逻辑   
+        }
+    })
+
+    /*
+        其中tools包含
+        tools = {
+            $getById(el){
+                return document.getElementById(el)
+            },
+            $query(el){
+                return document.querySelector(el)
+            },
+            $queryAll(el){
+                return document.querySelectorAll(el)
+            },
+            $getTagName(el){
+                return document.getElementsByTagName(el)
+            }
+        }
+
+        若libraryName = 'vue' 且 节点vueTemplateRoot 指定为正确的vue template  ，则callBackfunc下的this为当前vue对象，可对当前vue对象做任何操作
+    */
+
+```
 ## 工程架构总览与执行简述[⬆](#目录)<!-- Link generated with jump2header -->
-
-![SDK架构图](https://s1.ax1x.com/2022/11/23/z3WOmQ.png)
-
 ### 程序执行步骤简述
 <ol>
   <li>程序会在单例模式的基础上，返回现有实例，保证全局唯一。</li>
@@ -172,3 +306,5 @@ npm i web-rabc-permissions-sdk -S
         resultType增加removeNode逻辑实现
     </li>
 </ol>
+
+![SDK架构图](https://s1.ax1x.com/2022/11/23/z3WOmQ.png)
