@@ -20,15 +20,13 @@
   <li><a href="#npm-install">npm install</a></li>
   <li><a href="#基本使用与设计思路">基本使用与设计思路</a></li>
   <li><a href="#DEMO地址">DEMO地址</a></li>
-  <li><a href="#基本options详解">基本options详解</a></li>
   <li>
-    <a href="#接口">具体配置含义</a>
+    <a href="#具体配置含义">具体配置含义</a>
     <ul>
-    <li><a href="#配置DTO详解">配置DTO详解</a></li>
-      <li><a href="#设置原始权限类型与类型包含节点">设置原始权限类型与类型包含节点</a></li>
-      <li><a href="#设置权限类型执行顺序">设置权限类型执行顺序</a></li>
-      <li><a href="#设置权限生效方案">设置权限生效方案</a></li>
-      <li><a href="#设置libraryName">设置libraryName</a></li>
+    <li><a href="#PLAN_ENUM（可选）">PLAN_ENUM（可选）</a></li>
+      <li><a href="#ACTION_ORDER（可选）">ACTION_ORDER（可选）</a></li>
+      <li><a href="#permissionSimpleDTO（必选）">permissionSimpleDTO（必选）</a></li>
+      <li><a href="#webRabcPermissionSdkOptions（必选）">webRabcPermissionSdkOptions（必选）</a></li>
     </ul>
   </li>
   <li><a href="#启动权限">启动权限</a></li>
@@ -190,9 +188,9 @@ npm i web-rabc-permissions-sdk -S
 
 ## DEMO地址[⬆](#目录)<!-- Link generated with jump2header -->
 
-## 基本options详解[⬆](#目录)<!-- Link generated with jump2header -->
+## 具体配置含义[⬆](#目录)<!-- Link generated with jump2header -->
 
-### PLAN_ENUM   （可选）
+### PLAN_ENUM（可选）[⬆](#目录)<!-- Link generated with jump2header -->
 
 <ul>
     <li>执行计划枚举，在执行计划的时候通过选中方案进行执行。</li>
@@ -207,7 +205,7 @@ npm i web-rabc-permissions-sdk -S
 | OB_SERVER         | 通过MutationObserver实现执行方案 |
 
 
-### ACTION_ORDER   （可选）
+### ACTION_ORDER（可选）[⬆](#目录)<!-- Link generated with jump2header -->
 
 <ul>
     <li>设置当前web应用权限执行顺序逻辑</li>
@@ -221,7 +219,7 @@ npm i web-rabc-permissions-sdk -S
 | doSpecialPermiss         | 特殊权限 |
 
 
-### permissionSimpleDTO   （必选）
+### permissionSimpleDTO（必选）[⬆](#目录)<!-- Link generated with jump2header -->
 
 <ul>
     <li>设置当前web应用权限 havePermiss、noPermiss、specialPermiss 存储索引内容</li>
@@ -234,9 +232,9 @@ npm i web-rabc-permissions-sdk -S
 | eleIdOrClass      |必选| 当前节点的ID或则ClassName，若是ID，则赋值"#具体ID",若是className，则赋值".具体ClassName"，最终通过querySelector和querySelectorAll获取，建议使用ID |
 | resultType        |可选| 默认hidden |
 | showElemType     |可选|用户自定义display内容，设置后该节点将变为 display:用户内容!important;若赋值，则不会执行resultType逻辑|
-|describe|          |可选| 节点描述，方便DEBUG查看具体含义，理论上为String类型最大值|
-|callBackFunc|      |可选| 当前节点执行方法，默认为void 0；若赋值，则只会执行当前callBackFunc，目前提供具体的4个方法，见如下代码，<b>下个版本计划加入sandBox进行安全信任配置</b>
-|vueTemplateRoot|   |可选| 当前节点可使用的vue对象，默认为""。若当前节点为正确的vue template ID，则可以在callBackFunc下得到当前vue 的this,通过this调用，若失败或则为""，this则为window
+|describe          |可选|节点描述，方便DEBUG查看具体含义，理论上为String类型最大值|
+|callBackFunc      |可选|当前节点执行方法;默认不执行，若赋值，则只会执行当前callBackFunc(必须是一个function,箭头函数，class均会被throw)，目前提供具体的4个方法，见如下代码，<b>下个版本计划加入sandBox进行安全信任配置</b>|
+|vueTemplateRoot   |可选|当前节点可使用的vue对象，默认为""。若当前节点为正确的vue template ID，则可以在callBackFunc下得到当前vue 的this,通过this调用，若失败或则为""，this则为window|
 
 ```js
 
@@ -268,6 +266,49 @@ npm i web-rabc-permissions-sdk -S
     */
 
 ```
+
+
+
+### webRabcPermissionSdkOptions（必选）[⬆](#目录)<!-- Link generated with jump2header -->
+
+<ul>
+    <li>实例构造的最基本DTO</li>
+</ul>
+
+| 属性名            |是否必选| 描述 |
+| ---------------- | ----------- | ----------- |
+| permission        |可选| 为微前端保留的实体结构|
+| libraryName        |可选| 本次执行web应用中的基本框架，传入vue 或则 react，其中传入vue ，callBackFunc下获取library下对应的this对象有影响，不传入this默认指向window|
+| plan        |必选| 执行方案，参见  PLAN_ENUM |
+| havePermiss        |可选|  当前角色下必定显示的节点与路由集合(array)|
+| noPermiss        |可选|  当前角色下 需要隐藏或则删除的节点与路由集合(array)|
+| specialPermiss        |可选|  当前角色下 特殊的 节点与路由集合(array)|
+| actionOrder        |可选|  havePermiss、noPermiss、specialPermiss执行顺序，默认当前不可拥有权限 ---> 当前必须拥有权限 ---> 当前特定权限|
+
+
+
+## 启动权限[⬆](#目录)<!-- Link generated with jump2header -->
+```js
+
+    let _webRabc = new webRabcPermisson(webRabcPermissionSdkOptions);
+      _webRabc.start({
+        //PLAN_ENUM.SET_TIMEOUT 的轮询间隔，也可以充当 PLAN_ENUM.OB_SERVER 的节流时间
+        millisec:500, 
+        //PLAN_ENUM.OB_SERVER 的监控范围
+        obServerConfig:{
+                attributes:false,
+                childList:true,
+                subtree:true,
+                characterData:false
+            },
+        //PLAN_ENUM.OB_SERVER 的节流间隔
+        delay:500,
+        //PLAN_ENUM.OB_SERVER 下具体监控节点
+        obElem:'app'
+        });
+
+```
+
 ## 工程架构总览与执行简述[⬆](#目录)<!-- Link generated with jump2header -->
 ### 程序执行步骤简述
 <ol>
@@ -285,6 +326,8 @@ npm i web-rabc-permissions-sdk -S
   </li>
   <li>权限根据执行计划执行</li>
 </ol>
+![SDK架构图](https://s1.ax1x.com/2022/11/23/z3WOmQ.png)
+
 
 ## 继续开发计划[⬆](#目录)<!-- Link generated with jump2header -->
 <ol>
@@ -300,11 +343,10 @@ npm i web-rabc-permissions-sdk -S
         增加微前端模式
     </li>
     <li>
-        增加浏览器空闲执行
+        可配置执行浏览器空闲执行
     </li>
     <li>
         resultType增加removeNode逻辑实现
     </li>
 </ol>
 
-![SDK架构图](https://s1.ax1x.com/2022/11/23/z3WOmQ.png)
