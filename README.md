@@ -69,6 +69,8 @@ npm i web-rabc-permissions-sdk -S
             </li>
         </ol>
     </li>
+</ul>
+<ul>
     <li>
         其中havePermiss 与 noPermiss 会进行 各自的routerPath 与 eleIdOrClass 简单diff判断，进行去重，得到一个以路由为属性的对象，通过当前路由与对象节点匹配，保证执行期间的最小次数。
     </li>
