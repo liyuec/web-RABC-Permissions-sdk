@@ -312,19 +312,20 @@ npm i web-rabc-permissions-sdk -S
 ## 工程架构总览与执行简述[⬆](#目录)<!-- Link generated with jump2header -->
 ### 程序执行步骤简述
 <ol>
-  <li>程序会在单例模式的基础上，返回现有实例，保证全局唯一。</li>
-  <li>通过内部类constructor 缓存最初传入参数与权限节点</li>
-  <li>start() </li>
-  <li>
-    <ol>
-        <li>首先会diff掉 拥有权限与没有权限的数据，解决互斥，减少操作DOM的情况。</li>
-        <li>根据routerPath 和 eleIdOrClass 进行权限节点是否相同的判断。</li>
-        <li>其次判断传入执行计划，若浏览器不支持，则降级为setTimeout作为执行计划。</li>
-        <li>若有function执行黑名单，则会throw错误（<b>后续计划</b>)，用户可自由配置不允许操作的范围，比如cookie操作/localStorage操作等</li>
-        <li>最终根据执行计划，匹配当前路由与根据routerPath的关系，执行当前权限。</li>
-    </ol>
-  </li>
-  <li>权限根据执行计划执行</li>
+    <li>面向切面的编程思想</li>
+    <li>程序会在单例模式的基础上，返回现有实例，保证全局唯一。</li>
+    <li>通过内部类constructor 缓存最初传入参数与权限节点</li>
+    <li>start() </li>
+    <li>
+        <ol>
+            <li>首先会diff掉 拥有权限与没有权限的数据，解决互斥，减少操作DOM的情况。</li>
+            <li>根据routerPath 和 eleIdOrClass 进行权限节点是否相同的判断。</li>
+            <li>其次判断传入执行计划，若浏览器不支持，则降级为setTimeout作为执行计划。</li>
+            <li>若有function执行黑名单，则会throw错误（<b>后续计划</b>)，用户可自由配置不允许操作的范围，比如cookie操作/localStorage操作等</li>
+            <li>最终根据执行计划，匹配当前路由与根据routerPath的关系，执行当前权限。</li>
+        </ol>
+    </li>
+    <li>权限根据执行计划执行</li>
 </ol>
 
 ![SDK架构图](https://s1.ax1x.com/2022/11/23/z3WOmQ.png)
