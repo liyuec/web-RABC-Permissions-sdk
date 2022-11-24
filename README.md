@@ -23,10 +23,10 @@
   <li>
     <a href="#具体配置含义">具体配置含义</a>
     <ul>
-    <li><a href="#PLAN_ENUM（可选）">PLAN_ENUM（可选）</a></li>
-      <li><a href="#ACTION_ORDER（可选）">ACTION_ORDER（可选）</a></li>
-      <li><a href="#permissionSimpleDTO（必选）">permissionSimpleDTO（必选）</a></li>
-      <li><a href="#webRabcPermissionSdkOptions（必选）">webRabcPermissionSdkOptions（必选）</a></li>
+    <li><a href="#plan_enum可选">PLAN_ENUM（可选）</a></li>
+      <li><a href="#ACTION_ORDER可选">ACTION_ORDER（可选）</a></li>
+      <li><a href="#permissionSimpleDTO必选">permissionSimpleDTO（必选）</a></li>
+      <li><a href="#webRabcPermissionSdkOptions必选">webRabcPermissionSdkOptions（必选）</a></li>
     </ul>
   </li>
   <li><a href="#启动权限">启动权限</a></li>
