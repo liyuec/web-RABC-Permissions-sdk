@@ -326,6 +326,7 @@ npm i web-rabc-permissions-sdk -S
   </li>
   <li>权限根据执行计划执行</li>
 </ol>
+
 ![SDK架构图](https://s1.ax1x.com/2022/11/23/z3WOmQ.png)
 
 
