@@ -55,6 +55,8 @@ npm i web-rabc-permissions-sdk -S
     </li>
     <li>
         非常规情况补充：
+    </li>
+    <li>
         <ol>
             <li>用户A与用户B，同时拥有角色1，但是用户A却需要在角色1的基础上拥有更多特性，则可通过用户A拥有多个角色进行补充;
             </li>
