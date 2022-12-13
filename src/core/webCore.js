@@ -331,7 +331,7 @@ function MutationObserverFunc(){
                 ({haveElems,noPerElems,specialElems} = getWhoRouter(args.permissionDiffResult));
                 _actionOrder.forEach(action => {
                     switch(action){
-                        case ACTION_ORDER.noPermiss:
+                        case ACTION_ORDER.doNoPermiss:
                             doNoPermissDOM(noPerElems,permissionCache);
                         break;
                         case ACTION_ORDER.doHavePermiss:
@@ -367,7 +367,7 @@ function _setTimeout(permissionDiffResult,millisec,permissionCache,actionOrder){
     _this.timer = setTimeout(() => {
         _actionOrder.forEach(action => {
             switch(action){
-                case ACTION_ORDER.noPermiss:
+                case ACTION_ORDER.doNoPermiss:
                     doNoPermissDOM(noPerElems,permissionCache);
                 break;
                 case ACTION_ORDER.doHavePermiss:
@@ -378,7 +378,7 @@ function _setTimeout(permissionDiffResult,millisec,permissionCache,actionOrder){
                 break;
             }
         })
-        _setTimeout.call(_this,permissionDiffResult,millisec,permissionCache);
+        _setTimeout.call(_this,permissionDiffResult,millisec,permissionCache,_actionOrder);
     }, millisec);
 }   
 
