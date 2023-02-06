@@ -19,7 +19,7 @@
 <ul>
   <li><a href="#npm-install">npm install</a></li>
   <li><a href="#基本使用与设计思路">基本使用与设计思路</a></li>
-  <li><a href="#DEMO地址">DEMO地址</a></li>
+  <li><a href="#具体使用的DEMO地址">具体使用的DEMO地址</a></li>
   <li>
     <a href="#具体配置含义">具体配置含义</a>
     <ul>
@@ -186,7 +186,7 @@ npm i web-rabc-permissions-sdk -S
 ```
 
 
-## DEMO地址[⬆](#目录)<!-- Link generated with jump2header -->
+## 具体使用的DEMO地址[⬆](#目录)<!-- Link generated with jump2header -->
 <a href="https://github.com/liyuec/web-RABC-Permissions-sdk-DEMO">web-RABC-Permissions-sdk 使用DEMO地址</a>
 
 
