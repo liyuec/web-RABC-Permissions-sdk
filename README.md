@@ -334,23 +334,12 @@ npm i web-rabc-permissions-sdk -S
 
 
 ## 继续开发计划[⬆](#目录)<!-- Link generated with jump2header -->
-<ol>
-    <li>
-        - [] 增加sandBox，可选
-        <ol>
-            <li>黑名单配置</li>
-            <li>运行时验证</li>
-            <li>start前验证</li>
-        </ol>
-    </li>
-    <li>
-       - [] 增加微前端模式
-    </li>
-    <li>
-    - [] 可配置执行浏览器空闲执行
-    </li>
-    <li>
-     - [] resultType增加removeNode逻辑实现
-    </li>
-</ol>
+
+- [x]   增加sandBox(可选)  
+-       黑名单配置|运行时验证|start前验证
+- [ ]   增加微前端模式
+- [ ]   可配置执行浏览器空闲执行
+- [ ]   resultType增加removeNode逻辑实现
+- [ ]   构建aio,es,umd区分
+
 
