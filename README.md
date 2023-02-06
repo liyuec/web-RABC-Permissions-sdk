@@ -1,6 +1,6 @@
 # web-RABC-Permissions-sdk
 
-![web-rabc-permissions-sdk](https://s1.ax1x.com/2022/11/23/z3jf0I.md.png)
+![web-rabc-permissions-sdk](https://s1.ax1x.com/2023/02/06/pSckAHg.png)
 <p>
 后台管理系统RABC通用权限控制规范与规范代码实施js-SDK，包含 节点/按钮/路由 等控制 ，
 <br />
@@ -187,6 +187,8 @@ npm i web-rabc-permissions-sdk -S
 
 
 ## DEMO地址[⬆](#目录)<!-- Link generated with jump2header -->
+<a href="https://github.com/liyuec/web-RABC-Permissions-sdk-DEMO">web-RABC-Permissions-sdk 使用DEMO地址</a>
+
 
 ## 具体配置含义[⬆](#目录)<!-- Link generated with jump2header -->
 
@@ -334,7 +336,7 @@ npm i web-rabc-permissions-sdk -S
 ## 继续开发计划[⬆](#目录)<!-- Link generated with jump2header -->
 <ol>
     <li>
-        增加sandBox，可选
+        [] 增加sandBox，可选
         <ol>
             <li>黑名单配置</li>
             <li>运行时验证</li>
@@ -342,13 +344,13 @@ npm i web-rabc-permissions-sdk -S
         </ol>
     </li>
     <li>
-        增加微前端模式
+       [] 增加微前端模式
     </li>
     <li>
-        可配置执行浏览器空闲执行
+       [] 可配置执行浏览器空闲执行
     </li>
     <li>
-        resultType增加removeNode逻辑实现
+       [] resultType增加removeNode逻辑实现
     </li>
 </ol>
 
