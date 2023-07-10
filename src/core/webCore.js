@@ -47,7 +47,15 @@ function diffPermissNode(permissionCache,config){
         havePermiss.forEach(hItem => {
             let isSame = false;
             for(let i = 0;i<noPermiss.length;i++){
-                if(hItem.routerPath === noPermiss[i].routerPath && hItem.eleIdOrClass === noPermiss[i].eleIdOrClass){
+                //bug 多余条 则可能出现过滤失败的情况；
+                /*
+                    一个人，对按钮A控制
+                    1.A 可以
+                    2.A 可以
+                    3.A 不可以
+                    4.A 不可以
+                */
+                if(hItem.routerPath === noPermiss[i].routerPath && hItem.eleIdOrClass === noPermiss[i].eleIdOrClass && !noPermiss[i].isSame){
                     isSame = true;
                     noPermiss[i].isSame = true;
                     break;
