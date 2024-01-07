@@ -265,7 +265,7 @@ function _elemCallBackFunc(elem,permissionCache){
         
         //if(Reflect.toString.call(vueElem).slice(8,-1) === 'HTMLDivElement'){
         if(_toString.call(vueElem).slice(8,-1) === 'HTMLDivElement'){   
-            _spaThis = vueElem.__vue__;
+            _spaThis = vueElem['\u005f\u005f\u0076\u0075\u0065\u005f\u005f'];
         }
     }
 
